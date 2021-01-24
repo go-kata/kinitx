@@ -26,6 +26,7 @@ type Factory struct {
 }
 
 // NewFactory returns a new constructor.
+//
 // The argument x must be a function that is compatible with one of following signatures
 // (T is an arbitrary Go type):
 //

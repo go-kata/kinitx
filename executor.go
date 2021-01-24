@@ -22,6 +22,7 @@ type Executor struct {
 }
 
 // NewExecutor returns a new executor.
+//
 // The argument x must be a function that is compatible with one of following signatures:
 //
 //     func(...)

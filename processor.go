@@ -20,6 +20,7 @@ type Processor struct {
 }
 
 // NewProcessor returns a new processor.
+//
 // The argument x must be a function that is compatible with one of following signatures
 // (T is an arbitrary Go type):
 //

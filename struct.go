@@ -18,6 +18,7 @@ type Struct struct {
 }
 
 // NewStruct returns a new constructor.
+//
 // The argument x must be a struct or a struct pointer.
 func NewStruct(x interface{}) (*Struct, error) {
 	if x == nil {
