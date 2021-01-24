@@ -2,7 +2,7 @@
 
 Published under the MIT licence.
 
-This repository provides extensions for the package github.com/go-kata/kinit.
+This repository provides extensions for the package [github.com/go-kata/kinit](github.com/go-kata/kinit).
 
 See the documentation by reference above for information about packages.
 
