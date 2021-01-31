@@ -23,7 +23,7 @@ var executorType = reflect.TypeOf((*kinit.Executor)(nil)).Elem()
 
 // Provide calls the kinit.Provide passing a constructor based on the given entity.
 //
-// See the documentation for the ConstructorFrom to find out possible values of the argument x.
+// See the documentation for the MakeConstructor to find out possible values of the argument x.
 func Provide(x interface{}) error {
 	ctor, err := MakeConstructor(x)
 	if err != nil {
