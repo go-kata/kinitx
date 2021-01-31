@@ -13,8 +13,8 @@ func (*testCloser) Close() error {
 	return nil
 }
 
-func TestChooseConstructorWithConstructor(t *testing.T) {
-	ctor, err := chooseConstructor(func() int { return 0 })
+func TestNewProperConstructorWithConstructor(t *testing.T) {
+	ctor, err := newProperConstructor(func() int { return 0 })
 	if err != nil {
 		t.Logf("%+v", err)
 		t.Fail()
@@ -26,8 +26,8 @@ func TestChooseConstructorWithConstructor(t *testing.T) {
 	}
 }
 
-func TestChooseConstructorWithOpener(t *testing.T) {
-	ctor, err := chooseConstructor(func() *testCloser { return &testCloser{} })
+func TestNewProperConstructorWithOpener(t *testing.T) {
+	ctor, err := newProperConstructor(func() *testCloser { return &testCloser{} })
 	if err != nil {
 		t.Logf("%+v", err)
 		t.Fail()
@@ -39,8 +39,8 @@ func TestChooseConstructorWithOpener(t *testing.T) {
 	}
 }
 
-func TestChooseConstructorWithConstructorOfCloser(t *testing.T) {
-	ctor, err := chooseConstructor(func() (*testCloser, kdone.Destructor, error) {
+func TestNewProperConstructorWithConstructorOfCloser(t *testing.T) {
+	ctor, err := newProperConstructor(func() (*testCloser, kdone.Destructor, error) {
 		return &testCloser{}, kdone.Noop, nil
 	})
 	if err != nil {
@@ -54,8 +54,8 @@ func TestChooseConstructorWithConstructorOfCloser(t *testing.T) {
 	}
 }
 
-func TestChooseConstructorWithStruct(t *testing.T) {
-	ctor, err := chooseConstructor(testCloser{})
+func TestNewProperConstructorWithStruct(t *testing.T) {
+	ctor, err := newProperConstructor(testCloser{})
 	if err != nil {
 		t.Logf("%+v", err)
 		t.Fail()
@@ -67,8 +67,8 @@ func TestChooseConstructorWithStruct(t *testing.T) {
 	}
 }
 
-func TestChooseConstructorWithStructPointer(t *testing.T) {
-	ctor, err := chooseConstructor((*testCloser)(nil))
+func TestNewProperConstructorWithStructPointer(t *testing.T) {
+	ctor, err := newProperConstructor((*testCloser)(nil))
 	if err != nil {
 		t.Logf("%+v", err)
 		t.Fail()
@@ -80,8 +80,8 @@ func TestChooseConstructorWithStructPointer(t *testing.T) {
 	}
 }
 
-func TestChooseConstructorWithWrongX(t *testing.T) {
-	_, err := chooseConstructor(0)
+func TestNewProperConstructorWithWrongX(t *testing.T) {
+	_, err := newProperConstructor(0)
 	t.Logf("%+v", err)
 	if kerror.ClassOf(err) != kerror.ERuntime {
 		t.Fail()
@@ -89,8 +89,8 @@ func TestChooseConstructorWithWrongX(t *testing.T) {
 	}
 }
 
-func TestChooseConstructorWithWrongFunc(t *testing.T) {
-	_, err := chooseConstructor(func() {})
+func TestNewProperConstructorWithWrongFunc(t *testing.T) {
+	_, err := newProperConstructor(func() {})
 	t.Logf("%+v", err)
 	if kerror.ClassOf(err) != kerror.ERuntime {
 		t.Fail()
@@ -98,8 +98,8 @@ func TestChooseConstructorWithWrongFunc(t *testing.T) {
 	}
 }
 
-func TestChooseConstructorWithWrongPointer(t *testing.T) {
-	_, err := chooseConstructor((*int)(nil))
+func TestNewProperConstructorWithWrongPointer(t *testing.T) {
+	_, err := newProperConstructor((*int)(nil))
 	t.Logf("%+v", err)
 	if kerror.ClassOf(err) != kerror.ERuntime {
 		t.Fail()

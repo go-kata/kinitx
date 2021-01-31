@@ -33,7 +33,7 @@ var executorType = reflect.TypeOf((*kinit.Executor)(nil)).Elem()
 //
 // All other variants of x are unacceptable.
 func Provide(x interface{}) error {
-	ctor, err := chooseConstructor(x)
+	ctor, err := newProperConstructor(x)
 	if err != nil {
 		return err
 	}

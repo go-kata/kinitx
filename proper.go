@@ -7,10 +7,10 @@ import (
 	"github.com/go-kata/kinit"
 )
 
-// chooseConstructor returns a new constructor based on the given entity.
+// newProperConstructor returns a new constructor based on the given entity.
 //
 // See the documentation for the Provide to find out possible values of the argument x.
-func chooseConstructor(x interface{}) (kinit.Constructor, error) {
+func newProperConstructor(x interface{}) (kinit.Constructor, error) {
 	if x == nil {
 		return nil, kerror.New(kerror.ERuntime, "function, struct or struct pointer expected, nil given")
 	}
