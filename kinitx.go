@@ -23,9 +23,17 @@ var executorType = reflect.TypeOf((*kinit.Executor)(nil)).Elem()
 
 // Provide calls the kinit.Provide passing a constructor based on the given entity.
 //
-// See the documentation for the MakeConstructor to find out possible values of the argument x.
+// The x argument will be parsed corresponding to following rules:
+//
+// If x is a function it will be parsed using the NewOpener only when returns
+// an implementation of the io.Closer interface at the first position and, optionally,
+// error at the second. All other functions will be parsed using the NewConstructor.
+//
+// If x is a struct or pointer it will be parsed using the NewInitializer.
+//
+// All other variants of x are unacceptable.
 func Provide(x interface{}) error {
-	ctor, err := MakeConstructor(x)
+	ctor, err := chooseConstructor(x)
 	if err != nil {
 		return err
 	}
