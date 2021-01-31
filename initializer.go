@@ -7,9 +7,9 @@ import (
 	"github.com/go-kata/kerror"
 )
 
-// Struct represents a constructor based on a struct.
-type Struct struct {
-	// t specifies the type of an object that is created by this fusion.
+// Initializer represents a constructor based on a struct.
+type Initializer struct {
+	// t specifies the type of an object that is created by this initializer.
 	t reflect.Type
 	// assignableFieldTypes specifies types of assignable struct fields.
 	assignableFieldTypes []reflect.Type
@@ -17,10 +17,10 @@ type Struct struct {
 	assignableFieldIndexes []int
 }
 
-// NewStruct returns a new constructor.
+// NewInitializer returns a new initializer.
 //
 // The argument x must be a struct or a struct pointer.
-func NewStruct(x interface{}) (*Struct, error) {
+func NewInitializer(x interface{}) (*Initializer, error) {
 	if x == nil {
 		return nil, kerror.New(kerror.ERuntime, "struct or struct pointer expected, nil given")
 	}
@@ -37,7 +37,7 @@ func NewStruct(x interface{}) (*Struct, error) {
 			return nil, kerror.Newf(kerror.ERuntime, "struct or struct pointer expected, %s given", t)
 		}
 	}
-	c := &Struct{
+	c := &Initializer{
 		t: t,
 	}
 	for i, n := 0, st.NumField(); i < n; i++ {
@@ -51,9 +51,9 @@ func NewStruct(x interface{}) (*Struct, error) {
 	return c, nil
 }
 
-// MustNewStruct is a variant of the NewStruct that panics on error.
-func MustNewStruct(x interface{}) *Struct {
-	c, err := NewStruct(x)
+// MustNewInitializer is a variant of the NewInitializer that panics on error.
+func MustNewInitializer(x interface{}) *Initializer {
+	c, err := NewInitializer(x)
 	if err != nil {
 		panic(err)
 	}
@@ -61,7 +61,7 @@ func MustNewStruct(x interface{}) *Struct {
 }
 
 // Type implements the kinit.Constructor interface.
-func (c *Struct) Type() reflect.Type {
+func (c *Initializer) Type() reflect.Type {
 	if c == nil {
 		return nil
 	}
@@ -69,7 +69,7 @@ func (c *Struct) Type() reflect.Type {
 }
 
 // Parameters implements the kinit.Constructor interface.
-func (c *Struct) Parameters() []reflect.Type {
+func (c *Initializer) Parameters() []reflect.Type {
 	if c == nil {
 		return nil
 	}
@@ -79,19 +79,19 @@ func (c *Struct) Parameters() []reflect.Type {
 }
 
 // Create implements the kinit.Constructor interface.
-func (c *Struct) Create(a ...reflect.Value) (reflect.Value, kdone.Destructor, error) {
+func (c *Initializer) Create(a ...reflect.Value) (reflect.Value, kdone.Destructor, error) {
 	if c == nil {
 		return reflect.Value{}, kdone.Noop, nil
 	}
 	if len(a) != len(c.assignableFieldTypes) {
 		return reflect.Value{}, kdone.Noop, kerror.Newf(kerror.ERuntime,
-			"%s constructor expects %d argument(s), %d given",
+			"%s initializer expects %d argument(s), %d given",
 			c.t, len(c.assignableFieldTypes), len(a))
 	}
 	for i, v := range a {
 		if v.Type() != c.assignableFieldTypes[i] {
 			return reflect.Value{}, kdone.Noop, kerror.Newf(kerror.ERuntime,
-				"%s constructor expects argument %d to be of %s type, %s given",
+				"%s initializer expects argument %d to be of %s type, %s given",
 				c.t, i+1, c.assignableFieldTypes[i], v.Type())
 		}
 	}

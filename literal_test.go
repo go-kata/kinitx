@@ -10,10 +10,10 @@ import (
 
 func TestLiteral(t *testing.T) {
 	x := 1
-	init := MustNewLiteral(x)
+	boot := MustNewLiteral(x)
 	arena := kinit.NewArena()
 	defer arena.MustFinalize()
-	if err := init.Initialize(arena); err != nil {
+	if err := boot.Bootstrap(arena); err != nil {
 		t.Logf("%+v", err)
 		t.Fail()
 		return

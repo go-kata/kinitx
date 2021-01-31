@@ -7,8 +7,8 @@ import (
 	"github.com/go-kata/kerror"
 )
 
-// Factory represents a constructor based on a function.
-type Factory struct {
+// Constructor represents a constructor based on a function.
+type Constructor struct {
 	// t specifies the type of an object that is created by this constructor.
 	t reflect.Type
 	// function specifies the reflection to a function value.
@@ -25,7 +25,7 @@ type Factory struct {
 	errorOutIndex int
 }
 
-// NewFactory returns a new constructor.
+// NewConstructor returns a new constructor.
 //
 // The argument x must be a function that is compatible with one of following signatures
 // (T is an arbitrary Go type):
@@ -36,7 +36,7 @@ type Factory struct {
 //
 //     func(...) (T, kdone.Destructor, error).
 //
-func NewFactory(x interface{}) (*Factory, error) {
+func NewConstructor(x interface{}) (*Constructor, error) {
 	if x == nil {
 		return nil, kerror.New(kerror.ERuntime, "function expected, nil given")
 	}
@@ -48,7 +48,7 @@ func NewFactory(x interface{}) (*Factory, error) {
 	if fv.IsNil() {
 		return nil, kerror.New(kerror.ERuntime, "function expected, nil given")
 	}
-	c := &Factory{
+	c := &Constructor{
 		function: fv,
 	}
 	numIn := ft.NumIn()
@@ -61,7 +61,7 @@ func NewFactory(x interface{}) (*Factory, error) {
 	}
 	switch ft.NumOut() {
 	default:
-		return nil, kerror.Newf(kerror.ERuntime, "function %s is not a factory", ft)
+		return nil, kerror.Newf(kerror.ERuntime, "function %s is not a constructor", ft)
 	case 1:
 		c.t = ft.Out(0)
 		c.objectOutIndex = 0
@@ -69,7 +69,7 @@ func NewFactory(x interface{}) (*Factory, error) {
 		c.errorOutIndex = -1
 	case 2:
 		if ft.Out(1) != errorType {
-			return nil, kerror.Newf(kerror.ERuntime, "function %s is not a factory", ft)
+			return nil, kerror.Newf(kerror.ERuntime, "function %s is not a constructor", ft)
 		}
 		c.t = ft.Out(0)
 		c.objectOutIndex = 0
@@ -77,7 +77,7 @@ func NewFactory(x interface{}) (*Factory, error) {
 		c.errorOutIndex = 1
 	case 3:
 		if ft.Out(1) != destructorType || ft.Out(2) != errorType {
-			return nil, kerror.Newf(kerror.ERuntime, "function %s is not a factory", ft)
+			return nil, kerror.Newf(kerror.ERuntime, "function %s is not a constructor", ft)
 		}
 		c.t = ft.Out(0)
 		c.objectOutIndex = 0
@@ -87,9 +87,9 @@ func NewFactory(x interface{}) (*Factory, error) {
 	return c, nil
 }
 
-// MustNewFactory is a variant of the NewFactory that panics on error.
-func MustNewFactory(x interface{}) *Factory {
-	c, err := NewFactory(x)
+// MustNewConstructor is a variant of the NewConstructor that panics on error.
+func MustNewConstructor(x interface{}) *Constructor {
+	c, err := NewConstructor(x)
 	if err != nil {
 		panic(err)
 	}
@@ -97,7 +97,7 @@ func MustNewFactory(x interface{}) *Factory {
 }
 
 // Type implements the kinit.Constructor interface.
-func (c *Factory) Type() reflect.Type {
+func (c *Constructor) Type() reflect.Type {
 	if c == nil {
 		return nil
 	}
@@ -105,7 +105,7 @@ func (c *Factory) Type() reflect.Type {
 }
 
 // Parameters implements the kinit.Constructor interface.
-func (c *Factory) Parameters() []reflect.Type {
+func (c *Constructor) Parameters() []reflect.Type {
 	if c == nil {
 		return nil
 	}
@@ -115,7 +115,7 @@ func (c *Factory) Parameters() []reflect.Type {
 }
 
 // Create implements the kinit.Constructor interface.
-func (c *Factory) Create(a ...reflect.Value) (reflect.Value, kdone.Destructor, error) {
+func (c *Constructor) Create(a ...reflect.Value) (reflect.Value, kdone.Destructor, error) {
 	if c == nil {
 		return reflect.Value{}, kdone.Noop, nil
 	}

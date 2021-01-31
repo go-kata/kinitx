@@ -7,20 +7,20 @@ import (
 	"github.com/go-kata/kerror"
 )
 
-type testStructT1 struct{}
+type testInitializerT1 struct{}
 
-type testStructT2 struct{}
+type testInitializerT2 struct{}
 
-type testStructT3 struct {
-	Obj1 *testStructT1
-	Obj2 *testStructT2
+type testInitializerT3 struct {
+	Obj1 *testInitializerT1
+	Obj2 *testInitializerT2
 }
 
-func TestStructWithStruct(t *testing.T) {
-	ctor := MustNewStruct(testStructT3{})
+func TestInitializerWithStruct(t *testing.T) {
+	ctor := MustNewInitializer(testInitializerT3{})
 	t.Logf("%+v %+v", ctor.Type(), ctor.Parameters())
-	obj1 := &testStructT1{}
-	obj2 := &testStructT2{}
+	obj1 := &testInitializerT1{}
+	obj2 := &testInitializerT2{}
 	o3, dtor, err := ctor.Create(reflect.ValueOf(obj1), reflect.ValueOf(obj2))
 	if err != nil {
 		t.Logf("%+v", err)
@@ -28,7 +28,7 @@ func TestStructWithStruct(t *testing.T) {
 		return
 	}
 	defer dtor.MustDestroy()
-	obj3, ok := o3.Interface().(testStructT3)
+	obj3, ok := o3.Interface().(testInitializerT3)
 	if !ok {
 		t.Logf("%+v", o3)
 		t.Fail()
@@ -40,11 +40,11 @@ func TestStructWithStruct(t *testing.T) {
 	}
 }
 
-func TestStructWithPointer(t *testing.T) {
-	ctor := MustNewStruct((*testStructT3)(nil))
+func TestInitializerWithStructPointer(t *testing.T) {
+	ctor := MustNewInitializer((*testInitializerT3)(nil))
 	t.Logf("%+v %+v", ctor.Type(), ctor.Parameters())
-	obj1 := &testStructT1{}
-	obj2 := &testStructT2{}
+	obj1 := &testInitializerT1{}
+	obj2 := &testInitializerT2{}
 	o3, dtor, err := ctor.Create(reflect.ValueOf(obj1), reflect.ValueOf(obj2))
 	if err != nil {
 		t.Logf("%+v", err)
@@ -52,7 +52,7 @@ func TestStructWithPointer(t *testing.T) {
 		return
 	}
 	defer dtor.MustDestroy()
-	obj3, ok := o3.Interface().(*testStructT3)
+	obj3, ok := o3.Interface().(*testInitializerT3)
 	if !ok {
 		t.Logf("%+v", o3)
 		t.Fail()
@@ -64,8 +64,8 @@ func TestStructWithPointer(t *testing.T) {
 	}
 }
 
-func TestStructWithWrongXType(t *testing.T) {
-	_, err := NewStruct(0)
+func TestInitializerWithWrongXType(t *testing.T) {
+	_, err := NewInitializer(0)
 	t.Logf("%+v", err)
 	if kerror.ClassOf(err) != kerror.ERuntime {
 		t.Fail()
@@ -73,10 +73,10 @@ func TestStructWithWrongXType(t *testing.T) {
 	}
 }
 
-func TestStructWithWrongArgumentNumber(t *testing.T) {
-	ctor := MustNewStruct((*testStructT3)(nil))
+func TestInitializerWithWrongArgumentNumber(t *testing.T) {
+	ctor := MustNewInitializer((*testInitializerT3)(nil))
 	t.Logf("%+v %+v", ctor.Type(), ctor.Parameters())
-	_, _, err := ctor.Create(reflect.ValueOf(&testStructT1{}))
+	_, _, err := ctor.Create(reflect.ValueOf(&testInitializerT1{}))
 	t.Logf("%+v", err)
 	if kerror.ClassOf(err) != kerror.ERuntime {
 		t.Fail()
@@ -84,10 +84,10 @@ func TestStructWithWrongArgumentNumber(t *testing.T) {
 	}
 }
 
-func TestStructWithWrongArgumentType(t *testing.T) {
-	ctor := MustNewStruct((*testStructT3)(nil))
+func TestInitializerWithWrongArgumentType(t *testing.T) {
+	ctor := MustNewInitializer((*testInitializerT3)(nil))
 	t.Logf("%+v %+v", ctor.Type(), ctor.Parameters())
-	_, _, err := ctor.Create(reflect.ValueOf(&testStructT1{}), reflect.ValueOf(0))
+	_, _, err := ctor.Create(reflect.ValueOf(&testInitializerT1{}), reflect.ValueOf(0))
 	t.Logf("%+v", err)
 	if kerror.ClassOf(err) != kerror.ERuntime {
 		t.Fail()

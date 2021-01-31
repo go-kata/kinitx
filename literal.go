@@ -8,15 +8,15 @@ import (
 	"github.com/go-kata/kinit"
 )
 
-// Literal represents an initializer that registers an object to use directly instead of it creation.
+// Literal represents a bootstrapper that registers an object to use directly instead of it creation.
 type Literal struct {
-	// t specifies the type of an object that is registered by this initializer.
+	// t specifies the type of an object that is registered by this literal.
 	t reflect.Type
 	// object specifies the object to register.
 	object reflect.Value
 }
 
-// NewLiteral returns a new initializer.
+// NewLiteral returns a new literal.
 func NewLiteral(x interface{}) (*Literal, error) {
 	if x == nil {
 		return nil, kerror.New(kerror.ERuntime, "value expected, nil given")
@@ -29,14 +29,14 @@ func NewLiteral(x interface{}) (*Literal, error) {
 
 // MustNewLiteral is a variant of the NewLiteral that panics on error.
 func MustNewLiteral(x interface{}) *Literal {
-	i, err := NewLiteral(x)
+	l, err := NewLiteral(x)
 	if err != nil {
 		panic(err)
 	}
-	return i
+	return l
 }
 
-// Initialize implements the kinit.Initializer interface.
-func (i *Literal) Initialize(arena *kinit.Arena) error {
-	return arena.Register(i.t, i.object, kdone.Noop)
+// Bootstrap implements the kinit.Bootstrapper interface.
+func (l *Literal) Bootstrap(arena *kinit.Arena) error {
+	return arena.Register(l.t, l.object, kdone.Noop)
 }

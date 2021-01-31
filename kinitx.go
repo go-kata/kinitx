@@ -2,15 +2,18 @@
 package kinitx
 
 import (
+	"io"
 	"reflect"
 
 	"github.com/go-kata/kdone"
-	"github.com/go-kata/kerror"
 	"github.com/go-kata/kinit"
 )
 
 // errorType specifies the reflection to the error interface.
 var errorType = reflect.TypeOf((*error)(nil)).Elem()
+
+// closerType specifies the reflection to the io.Closer interface.
+var closerType = reflect.TypeOf((*io.Closer)(nil)).Elem()
 
 // destructorType specifies the reflection to the kdone.Destructor interface.
 var destructorType = reflect.TypeOf((*kdone.Destructor)(nil)).Elem()
@@ -20,22 +23,9 @@ var executorType = reflect.TypeOf((*kinit.Executor)(nil)).Elem()
 
 // Provide calls the kinit.Provide passing a constructor based on the given entity.
 //
-// See the documentation for the NewFactory and NewStruct to find out possible values of the argument x.
+// See the documentation for the ConstructorFrom to find out possible values of the argument x.
 func Provide(x interface{}) error {
-	if x == nil {
-		return kerror.New(kerror.ERuntime, "function, struct or struct pointer expected, nil given")
-	}
-	var ctor kinit.Constructor
-	var err error
-	t := reflect.TypeOf(x)
-	switch t.Kind() {
-	default:
-		return kerror.Newf(kerror.ERuntime, "function, struct or struct pointer expected, %s given", t)
-	case reflect.Func:
-		ctor, err = NewFactory(x)
-	case reflect.Struct, reflect.Ptr:
-		ctor, err = NewStruct(x)
-	}
+	ctor, err := MakeConstructor(x)
 	if err != nil {
 		return err
 	}
@@ -76,15 +66,15 @@ func Invoke(x interface{}, xx ...interface{}) error {
 	if err != nil {
 		return err
 	}
-	initializers := make([]kinit.Initializer, len(xx))
+	bootstrappers := make([]kinit.Bootstrapper, len(xx))
 	for i, v := range xx {
-		init, err := NewLiteral(v)
+		boot, err := NewLiteral(v)
 		if err != nil {
 			return err
 		}
-		initializers[i] = init
+		bootstrappers[i] = boot
 	}
-	return kinit.Invoke(exec, initializers...)
+	return kinit.Invoke(exec, bootstrappers...)
 }
 
 // MustInvoke is a variant of the Invoke that panics on error.
