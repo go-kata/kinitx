@@ -1,6 +1,6 @@
 # KInit Extensions
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/go-kata/kinitx.svg)](https://pkg.go.dev/github.com/go-kata/kinitx)
+[![Go Reference](https://pkg.go.dev/badge/github.com/go-kata/kinitx.svg)](https://pkg.go.dev/github.com/go-kata/kinitx@master)
 
 ## Installation
 
