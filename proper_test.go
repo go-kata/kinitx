@@ -26,8 +26,21 @@ func TestNewProperConstructorWithConstructor(t *testing.T) {
 	}
 }
 
-func TestNewProperConstructorWithOpener(t *testing.T) {
+func TestNewProperConstructorWithOpener1(t *testing.T) {
 	ctor, err := newProperConstructor(func() *testCloser { return &testCloser{} })
+	if err != nil {
+		t.Logf("%+v", err)
+		t.Fail()
+		return
+	}
+	if _, ok := ctor.(*Opener); !ok {
+		t.Fail()
+		return
+	}
+}
+
+func TestNewProperConstructorWithOpener2(t *testing.T) {
+	ctor, err := newProperConstructor(func() (*testCloser, error) { return &testCloser{}, nil })
 	if err != nil {
 		t.Logf("%+v", err)
 		t.Fail()
@@ -80,7 +93,7 @@ func TestNewProperConstructorWithStructPointer(t *testing.T) {
 	}
 }
 
-func TestNewProperConstructorWithWrongX(t *testing.T) {
+func TestNewProperConstructorWithWrongType(t *testing.T) {
 	_, err := newProperConstructor(0)
 	t.Logf("%+v", err)
 	if kerror.ClassOf(err) != kerror.ERuntime {

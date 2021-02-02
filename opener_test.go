@@ -4,6 +4,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/go-kata/kdone"
 	"github.com/go-kata/kerror"
 )
 
@@ -88,7 +89,25 @@ func TestOpener2(t *testing.T) {
 	}
 }
 
-func TestOpenerWithWrongXType(t *testing.T) {
+func TestOpener_NewWithNil(t *testing.T) {
+	_, err := NewOpener(nil)
+	t.Logf("%+v", err)
+	if kerror.ClassOf(err) != kerror.ERuntime {
+		t.Fail()
+		return
+	}
+}
+
+func TestOpener_NewWithNilFunction(t *testing.T) {
+	_, err := NewOpener((func() *testOpenerT3)(nil))
+	t.Logf("%+v", err)
+	if kerror.ClassOf(err) != kerror.ERuntime {
+		t.Fail()
+		return
+	}
+}
+
+func TestOpener_NewWithWrongType(t *testing.T) {
 	_, err := NewOpener(0)
 	t.Logf("%+v", err)
 	if kerror.ClassOf(err) != kerror.ERuntime {
@@ -97,7 +116,7 @@ func TestOpenerWithWrongXType(t *testing.T) {
 	}
 }
 
-func TestOpenerWithWrongSignature(t *testing.T) {
+func TestOpener_NewWithWrongSignature(t *testing.T) {
 	defer func() {
 		if v := recover(); v != nil {
 			t.Logf("%+v", v)
@@ -113,7 +132,7 @@ func TestOpenerWithWrongSignature(t *testing.T) {
 	}
 }
 
-func TestOpenerWithWrongCloser(t *testing.T) {
+func TestOpener_NewWithWrongCloser(t *testing.T) {
 	defer func() {
 		if v := recover(); v != nil {
 			t.Logf("%+v", v)
@@ -129,7 +148,7 @@ func TestOpenerWithWrongCloser(t *testing.T) {
 	}
 }
 
-func TestOpenerWithWrongNumberOfArguments(t *testing.T) {
+func TestOpener_CreateWithWrongNumberOfArguments(t *testing.T) {
 	ctor := MustNewOpener(func(
 		obj1 *testOpenerT1,
 		obj2 *testOpenerT2,
@@ -145,7 +164,7 @@ func TestOpenerWithWrongNumberOfArguments(t *testing.T) {
 	}
 }
 
-func TestOpenerWithWrongArgumentType(t *testing.T) {
+func TestOpener_CreateWithWrongArgumentType(t *testing.T) {
 	ctor := MustNewOpener(func(
 		obj1 *testOpenerT1,
 		obj2 *testOpenerT2,
@@ -156,6 +175,43 @@ func TestOpenerWithWrongArgumentType(t *testing.T) {
 	_, _, err := ctor.Create(reflect.ValueOf(&testOpenerT1{}), reflect.ValueOf(0))
 	t.Logf("%+v", err)
 	if kerror.ClassOf(err) != kerror.ERuntime {
+		t.Fail()
+		return
+	}
+}
+
+func TestNilOpener_Type(t *testing.T) {
+	if (*Opener)(nil).Type() != nil {
+		t.Fail()
+		return
+	}
+}
+
+func TestNilOpener_Parameters(t *testing.T) {
+	if (*Opener)(nil).Parameters() != nil {
+		t.Fail()
+		return
+	}
+}
+
+func TestNilOpener_Create(t *testing.T) {
+	obj, dtor, err := (*Opener)(nil).Create()
+	if obj != reflect.ValueOf(nil) {
+		t.Fail()
+		return
+	}
+	f, ok := dtor.(kdone.DestructorFunc)
+	if !ok {
+		t.Fail()
+		return
+	}
+	if err := f.Destroy(); err != nil {
+		t.Logf("%+v", err)
+		t.Fail()
+		return
+	}
+	if err != nil {
+		t.Logf("%+v", err)
 		t.Fail()
 		return
 	}

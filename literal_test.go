@@ -24,7 +24,7 @@ func TestLiteral(t *testing.T) {
 	}
 }
 
-func TestLiteralWithNilX(t *testing.T) {
+func TestLiteral_NewWithNil(t *testing.T) {
 	_, err := NewLiteral(nil)
 	t.Logf("%+v", err)
 	if kerror.ClassOf(err) != kerror.ERuntime {

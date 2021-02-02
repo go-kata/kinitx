@@ -59,7 +59,25 @@ func TestExecutor2(t *testing.T) {
 	}
 }
 
-func TestExecutorWithWrongXType(t *testing.T) {
+func TestExecutor_NewWithNil(t *testing.T) {
+	_, err := NewExecutor(nil)
+	t.Logf("%+v", err)
+	if kerror.ClassOf(err) != kerror.ERuntime {
+		t.Fail()
+		return
+	}
+}
+
+func TestExecutor_NewWithNilFunction(t *testing.T) {
+	_, err := NewExecutor((func())(nil))
+	t.Logf("%+v", err)
+	if kerror.ClassOf(err) != kerror.ERuntime {
+		t.Fail()
+		return
+	}
+}
+
+func TestExecutor_NewWithWrongType(t *testing.T) {
 	_, err := NewExecutor(0)
 	t.Logf("%+v", err)
 	if kerror.ClassOf(err) != kerror.ERuntime {
@@ -68,7 +86,7 @@ func TestExecutorWithWrongXType(t *testing.T) {
 	}
 }
 
-func TestExecutorWithWrongSignature(t *testing.T) {
+func TestExecutor_NewWithWrongSignature(t *testing.T) {
 	_, err := NewExecutor(func() int { return 0 })
 	t.Logf("%+v", err)
 	if kerror.ClassOf(err) != kerror.ERuntime {
@@ -77,7 +95,7 @@ func TestExecutorWithWrongSignature(t *testing.T) {
 	}
 }
 
-func TestExecutorWithWrongNumberOfArguments(t *testing.T) {
+func TestExecutor_ExecuteWithWrongNumberOfArguments(t *testing.T) {
 	var c int
 	exec := MustNewExecutor(func(v *int) { *v++ })
 	t.Logf("%+v", exec.Parameters())
@@ -89,12 +107,32 @@ func TestExecutorWithWrongNumberOfArguments(t *testing.T) {
 	}
 }
 
-func TestExecutorWithWrongArgumentType(t *testing.T) {
+func TestExecutor_ExecuteWithWrongArgumentType(t *testing.T) {
 	exec := MustNewExecutor(func(v *int) { *v++ })
 	t.Logf("%+v", exec.Parameters())
 	_, err := exec.Execute(reflect.ValueOf(""))
 	t.Logf("%+v", err)
 	if kerror.ClassOf(err) != kerror.ERuntime {
+		t.Fail()
+		return
+	}
+}
+
+func TestNilExecutor_Parameters(t *testing.T) {
+	if (*Executor)(nil).Parameters() != nil {
+		t.Fail()
+		return
+	}
+}
+
+func TestNilExecutor_Execute(t *testing.T) {
+	exec, err := (*Executor)(nil).Execute()
+	if exec != nil {
+		t.Fail()
+		return
+	}
+	if err != nil {
+		t.Logf("%+v", err)
 		t.Fail()
 		return
 	}

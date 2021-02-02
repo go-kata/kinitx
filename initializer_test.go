@@ -4,6 +4,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/go-kata/kdone"
 	"github.com/go-kata/kerror"
 )
 
@@ -64,7 +65,16 @@ func TestInitializerWithStructPointer(t *testing.T) {
 	}
 }
 
-func TestInitializerWithWrongXType(t *testing.T) {
+func TestInitializer_NewWithNil(t *testing.T) {
+	_, err := NewInitializer(nil)
+	t.Logf("%+v", err)
+	if kerror.ClassOf(err) != kerror.ERuntime {
+		t.Fail()
+		return
+	}
+}
+
+func TestInitializer_NewWithWrongType(t *testing.T) {
 	_, err := NewInitializer(0)
 	t.Logf("%+v", err)
 	if kerror.ClassOf(err) != kerror.ERuntime {
@@ -73,7 +83,7 @@ func TestInitializerWithWrongXType(t *testing.T) {
 	}
 }
 
-func TestInitializerWithWrongArgumentNumber(t *testing.T) {
+func TestInitializer_CreateWithWrongArgumentNumber(t *testing.T) {
 	ctor := MustNewInitializer((*testInitializerT3)(nil))
 	t.Logf("%+v %+v", ctor.Type(), ctor.Parameters())
 	_, _, err := ctor.Create(reflect.ValueOf(&testInitializerT1{}))
@@ -84,12 +94,49 @@ func TestInitializerWithWrongArgumentNumber(t *testing.T) {
 	}
 }
 
-func TestInitializerWithWrongArgumentType(t *testing.T) {
+func TestInitializer_CreateWithWrongArgumentType(t *testing.T) {
 	ctor := MustNewInitializer((*testInitializerT3)(nil))
 	t.Logf("%+v %+v", ctor.Type(), ctor.Parameters())
 	_, _, err := ctor.Create(reflect.ValueOf(&testInitializerT1{}), reflect.ValueOf(0))
 	t.Logf("%+v", err)
 	if kerror.ClassOf(err) != kerror.ERuntime {
+		t.Fail()
+		return
+	}
+}
+
+func TestNilInitializer_Type(t *testing.T) {
+	if (*Initializer)(nil).Type() != nil {
+		t.Fail()
+		return
+	}
+}
+
+func TestNilInitializer_Parameters(t *testing.T) {
+	if (*Initializer)(nil).Parameters() != nil {
+		t.Fail()
+		return
+	}
+}
+
+func TestNilInitializer_Create(t *testing.T) {
+	obj, dtor, err := (*Initializer)(nil).Create()
+	if obj != reflect.ValueOf(nil) {
+		t.Fail()
+		return
+	}
+	f, ok := dtor.(kdone.DestructorFunc)
+	if !ok {
+		t.Fail()
+		return
+	}
+	if err := f.Destroy(); err != nil {
+		t.Logf("%+v", err)
+		t.Fail()
+		return
+	}
+	if err != nil {
+		t.Logf("%+v", err)
 		t.Fail()
 		return
 	}

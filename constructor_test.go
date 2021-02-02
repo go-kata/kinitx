@@ -111,7 +111,25 @@ func TestConstructor3(t *testing.T) {
 	}
 }
 
-func TestConstructorWithWrongXType(t *testing.T) {
+func TestConstructor_NewWithNil(t *testing.T) {
+	_, err := NewConstructor(nil)
+	t.Logf("%+v", err)
+	if kerror.ClassOf(err) != kerror.ERuntime {
+		t.Fail()
+		return
+	}
+}
+
+func TestConstructor_NewWithNilFunction(t *testing.T) {
+	_, err := NewConstructor((func() int)(nil))
+	t.Logf("%+v", err)
+	if kerror.ClassOf(err) != kerror.ERuntime {
+		t.Fail()
+		return
+	}
+}
+
+func TestConstructor_NewWithWrongType(t *testing.T) {
 	_, err := NewConstructor(0)
 	t.Logf("%+v", err)
 	if kerror.ClassOf(err) != kerror.ERuntime {
@@ -120,7 +138,7 @@ func TestConstructorWithWrongXType(t *testing.T) {
 	}
 }
 
-func TestConstructorWithWrongSignature(t *testing.T) {
+func TestConstructor_NewWithWrongSignature(t *testing.T) {
 	defer func() {
 		if v := recover(); v != nil {
 			t.Logf("%+v", v)
@@ -136,7 +154,7 @@ func TestConstructorWithWrongSignature(t *testing.T) {
 	}
 }
 
-func TestConstructorWithWrongNumberOfArguments(t *testing.T) {
+func TestConstructor_CreateWithWrongNumberOfArguments(t *testing.T) {
 	ctor := MustNewConstructor(func(
 		obj1 *testConstructorT1,
 		obj2 *testConstructorT2,
@@ -152,7 +170,7 @@ func TestConstructorWithWrongNumberOfArguments(t *testing.T) {
 	}
 }
 
-func TestConstructorWithWrongArgumentType(t *testing.T) {
+func TestConstructor_CreateWithWrongArgumentType(t *testing.T) {
 	ctor := MustNewConstructor(func(
 		obj1 *testConstructorT1,
 		obj2 *testConstructorT2,
@@ -163,6 +181,43 @@ func TestConstructorWithWrongArgumentType(t *testing.T) {
 	_, _, err := ctor.Create(reflect.ValueOf(&testConstructorT1{}), reflect.ValueOf(0))
 	t.Logf("%+v", err)
 	if kerror.ClassOf(err) != kerror.ERuntime {
+		t.Fail()
+		return
+	}
+}
+
+func TestNilConstructor_Type(t *testing.T) {
+	if (*Constructor)(nil).Type() != nil {
+		t.Fail()
+		return
+	}
+}
+
+func TestNilConstructor_Parameters(t *testing.T) {
+	if (*Constructor)(nil).Parameters() != nil {
+		t.Fail()
+		return
+	}
+}
+
+func TestNilConstructor_Create(t *testing.T) {
+	obj, dtor, err := (*Constructor)(nil).Create()
+	if obj != reflect.ValueOf(nil) {
+		t.Fail()
+		return
+	}
+	f, ok := dtor.(kdone.DestructorFunc)
+	if !ok {
+		t.Fail()
+		return
+	}
+	if err := f.Destroy(); err != nil {
+		t.Logf("%+v", err)
+		t.Fail()
+		return
+	}
+	if err != nil {
+		t.Logf("%+v", err)
 		t.Fail()
 		return
 	}
