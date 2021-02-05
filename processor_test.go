@@ -7,7 +7,7 @@ import (
 	"github.com/go-kata/kerror"
 )
 
-func TestProcessor0(t *testing.T) {
+func TestProcessor__FunctionReturningNothing(t *testing.T) {
 	var c int
 	proc := MustNewProcessor(func(v *int, i int8) { *v += int(i) })
 	t.Logf("%+v %+v", proc.Type(), proc.Parameters())
@@ -22,7 +22,7 @@ func TestProcessor0(t *testing.T) {
 	}
 }
 
-func TestProcessor1(t *testing.T) {
+func TestProcessor__FunctionReturningError(t *testing.T) {
 	var c int
 	proc := MustNewProcessor(func(v *int, i int8) error {
 		*v += int(i)
@@ -40,72 +40,72 @@ func TestProcessor1(t *testing.T) {
 	}
 }
 
-func TestProcessor_NewWithNil(t *testing.T) {
+func TestNewProcessor__Nil(t *testing.T) {
 	_, err := NewProcessor(nil)
 	t.Logf("%+v", err)
-	if kerror.ClassOf(err) != kerror.ERuntime {
+	if kerror.ClassOf(err) != kerror.EViolation {
 		t.Fail()
 		return
 	}
 }
 
-func TestProcessor_NewWithNilFunction(t *testing.T) {
+func TestNewProcessor__NilFunction(t *testing.T) {
 	_, err := NewProcessor((func())(nil))
 	t.Logf("%+v", err)
-	if kerror.ClassOf(err) != kerror.ERuntime {
+	if kerror.ClassOf(err) != kerror.EViolation {
 		t.Fail()
 		return
 	}
 }
 
-func TestProcessor_NewWithWrongType(t *testing.T) {
+func TestNewProcessor__WrongType(t *testing.T) {
 	_, err := NewProcessor(0)
 	t.Logf("%+v", err)
-	if kerror.ClassOf(err) != kerror.ERuntime {
+	if kerror.ClassOf(err) != kerror.EViolation {
 		t.Fail()
 		return
 	}
 }
 
-func TestProcessor_NewWithWrongSignature(t *testing.T) {
+func TestNewProcessor__WrongSignature(t *testing.T) {
 	_, err := NewProcessor(func() {})
 	t.Logf("%+v", err)
-	if kerror.ClassOf(err) != kerror.ERuntime {
+	if kerror.ClassOf(err) != kerror.EViolation {
 		t.Fail()
 		return
 	}
 }
 
-func TestProcessor_ProcessWithWrongObjectType(t *testing.T) {
+func TestProcessor_Process__WrongObjectType(t *testing.T) {
 	proc := MustNewProcessor(func(v *int, i int8) { *v += int(i) })
 	t.Logf("%+v %+v", proc.Type(), proc.Parameters())
 	err := proc.Process(reflect.ValueOf(""), reflect.ValueOf(int8(1)))
 	t.Logf("%+v", err)
-	if kerror.ClassOf(err) != kerror.ERuntime {
+	if kerror.ClassOf(err) != kerror.EViolation {
 		t.Fail()
 		return
 	}
 }
 
-func TestProcessor_ProcessWithWrongNumberOfArguments(t *testing.T) {
+func TestProcessor_Process__WrongNumberOfArguments(t *testing.T) {
 	var c int
 	proc := MustNewProcessor(func(v *int, i int8) { *v += int(i) })
 	t.Logf("%+v %+v", proc.Type(), proc.Parameters())
 	err := proc.Process(reflect.ValueOf(&c))
 	t.Logf("%+v", err)
-	if kerror.ClassOf(err) != kerror.ERuntime {
+	if kerror.ClassOf(err) != kerror.EViolation {
 		t.Fail()
 		return
 	}
 }
 
-func TestProcessor_ProcessWithWrongArgumentType(t *testing.T) {
+func TestProcessor_Process__WrongArgumentType(t *testing.T) {
 	var c int
 	proc := MustNewProcessor(func(v *int, i int8) { *v += int(i) })
 	t.Logf("%+v %+v", proc.Type(), proc.Parameters())
 	err := proc.Process(reflect.ValueOf(&c), reflect.ValueOf(""))
 	t.Logf("%+v", err)
-	if kerror.ClassOf(err) != kerror.ERuntime {
+	if kerror.ClassOf(err) != kerror.EViolation {
 		t.Fail()
 		return
 	}

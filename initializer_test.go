@@ -17,7 +17,7 @@ type testInitializerT3 struct {
 	Obj2 *testInitializerT2
 }
 
-func TestInitializerWithStruct(t *testing.T) {
+func TestInitializer__Struct(t *testing.T) {
 	ctor := MustNewInitializer(testInitializerT3{})
 	t.Logf("%+v %+v", ctor.Type(), ctor.Parameters())
 	obj1 := &testInitializerT1{}
@@ -41,7 +41,7 @@ func TestInitializerWithStruct(t *testing.T) {
 	}
 }
 
-func TestInitializerWithStructPointer(t *testing.T) {
+func TestInitializer__StructPointer(t *testing.T) {
 	ctor := MustNewInitializer((*testInitializerT3)(nil))
 	t.Logf("%+v %+v", ctor.Type(), ctor.Parameters())
 	obj1 := &testInitializerT1{}
@@ -65,41 +65,41 @@ func TestInitializerWithStructPointer(t *testing.T) {
 	}
 }
 
-func TestInitializer_NewWithNil(t *testing.T) {
+func TestNewInitializer__Nil(t *testing.T) {
 	_, err := NewInitializer(nil)
 	t.Logf("%+v", err)
-	if kerror.ClassOf(err) != kerror.ERuntime {
+	if kerror.ClassOf(err) != kerror.EViolation {
 		t.Fail()
 		return
 	}
 }
 
-func TestInitializer_NewWithWrongType(t *testing.T) {
+func TestNewInitializer__WrongType(t *testing.T) {
 	_, err := NewInitializer(0)
 	t.Logf("%+v", err)
-	if kerror.ClassOf(err) != kerror.ERuntime {
+	if kerror.ClassOf(err) != kerror.EViolation {
 		t.Fail()
 		return
 	}
 }
 
-func TestInitializer_CreateWithWrongArgumentNumber(t *testing.T) {
+func TestInitializer_Create__WrongArgumentNumber(t *testing.T) {
 	ctor := MustNewInitializer((*testInitializerT3)(nil))
 	t.Logf("%+v %+v", ctor.Type(), ctor.Parameters())
 	_, _, err := ctor.Create(reflect.ValueOf(&testInitializerT1{}))
 	t.Logf("%+v", err)
-	if kerror.ClassOf(err) != kerror.ERuntime {
+	if kerror.ClassOf(err) != kerror.EViolation {
 		t.Fail()
 		return
 	}
 }
 
-func TestInitializer_CreateWithWrongArgumentType(t *testing.T) {
+func TestInitializer_Create__WrongArgumentType(t *testing.T) {
 	ctor := MustNewInitializer((*testInitializerT3)(nil))
 	t.Logf("%+v %+v", ctor.Type(), ctor.Parameters())
 	_, _, err := ctor.Create(reflect.ValueOf(&testInitializerT1{}), reflect.ValueOf(0))
 	t.Logf("%+v", err)
-	if kerror.ClassOf(err) != kerror.ERuntime {
+	if kerror.ClassOf(err) != kerror.EViolation {
 		t.Fail()
 		return
 	}

@@ -35,98 +35,98 @@ type Opener struct {
 //
 func NewOpener(x interface{}) (*Opener, error) {
 	if x == nil {
-		return nil, kerror.New(kerror.ERuntime, "function expected, nil given")
+		return nil, kerror.New(kerror.EViolation, "function expected, nil given")
 	}
 	ft := reflect.TypeOf(x)
 	fv := reflect.ValueOf(x)
 	if ft.Kind() != reflect.Func {
-		return nil, kerror.Newf(kerror.ERuntime, "function expected, %s given", ft)
+		return nil, kerror.Newf(kerror.EViolation, "function expected, %s given", ft)
 	}
 	if fv.IsNil() {
-		return nil, kerror.New(kerror.ERuntime, "function expected, nil given")
+		return nil, kerror.New(kerror.EViolation, "function expected, nil given")
 	}
-	o := &Opener{
+	c := &Opener{
 		function: fv,
 	}
 	numIn := ft.NumIn()
 	if ft.IsVariadic() {
 		numIn--
 	}
-	o.inTypes = make([]reflect.Type, numIn)
+	c.inTypes = make([]reflect.Type, numIn)
 	for i := 0; i < numIn; i++ {
-		o.inTypes[i] = ft.In(i)
+		c.inTypes[i] = ft.In(i)
 	}
 	switch ft.NumOut() {
 	default:
-		return nil, kerror.Newf(kerror.ERuntime, "function %s is not an opener", ft)
+		return nil, kerror.Newf(kerror.EViolation, "function %s is not an opener", ft)
 	case 1:
 		if !ft.Out(0).Implements(closerType) {
-			return nil, kerror.Newf(kerror.ERuntime, "function %s is not an opener", ft)
+			return nil, kerror.Newf(kerror.EViolation, "function %s is not an opener", ft)
 		}
-		o.t = ft.Out(0)
-		o.objectOutIndex = 0
-		o.errorOutIndex = -1
+		c.t = ft.Out(0)
+		c.objectOutIndex = 0
+		c.errorOutIndex = -1
 	case 2:
 		if !ft.Out(0).Implements(closerType) || ft.Out(1) != errorType {
-			return nil, kerror.Newf(kerror.ERuntime, "function %s is not an opener", ft)
+			return nil, kerror.Newf(kerror.EViolation, "function %s is not an opener", ft)
 		}
-		o.t = ft.Out(0)
-		o.objectOutIndex = 0
-		o.errorOutIndex = 1
+		c.t = ft.Out(0)
+		c.objectOutIndex = 0
+		c.errorOutIndex = 1
 	}
-	return o, nil
+	return c, nil
 }
 
 // MustNewOpener is a variant of the NewOpener that panics on error.
 func MustNewOpener(x interface{}) *Opener {
-	o, err := NewOpener(x)
+	c, err := NewOpener(x)
 	if err != nil {
 		panic(err)
 	}
-	return o
+	return c
 }
 
 // Type implements the kinit.Constructor interface.
-func (o *Opener) Type() reflect.Type {
-	if o == nil {
+func (c *Opener) Type() reflect.Type {
+	if c == nil {
 		return nil
 	}
-	return o.t
+	return c.t
 }
 
 // Parameters implements the kinit.Constructor interface.
-func (o *Opener) Parameters() []reflect.Type {
-	if o == nil {
+func (c *Opener) Parameters() []reflect.Type {
+	if c == nil {
 		return nil
 	}
-	types := make([]reflect.Type, len(o.inTypes))
-	copy(types, o.inTypes)
+	types := make([]reflect.Type, len(c.inTypes))
+	copy(types, c.inTypes)
 	return types
 }
 
 // Create implements the kinit.Constructor interface.
-func (o *Opener) Create(a ...reflect.Value) (reflect.Value, kdone.Destructor, error) {
-	if o == nil {
+func (c *Opener) Create(a ...reflect.Value) (reflect.Value, kdone.Destructor, error) {
+	if c == nil {
 		return reflect.Value{}, kdone.Noop, nil
 	}
-	if len(a) != len(o.inTypes) {
-		return reflect.Value{}, kdone.Noop, kerror.Newf(kerror.ERuntime,
-			"%s constructor expects %d argument(s), %d given",
-			o.t, len(o.inTypes), len(a))
+	if len(a) != len(c.inTypes) {
+		return reflect.Value{}, kdone.Noop, kerror.Newf(kerror.EViolation,
+			"%s opener expects %d argument(s), %d given",
+			c.t, len(c.inTypes), len(a))
 	}
 	for i, v := range a {
-		if v.Type() != o.inTypes[i] {
-			return reflect.Value{}, kdone.Noop, kerror.Newf(kerror.ERuntime,
-				"%s constructor expects argument %d to be of %s type, %s given",
-				o.t, i+1, o.inTypes[i], v.Type())
+		if v.Type() != c.inTypes[i] {
+			return reflect.Value{}, kdone.Noop, kerror.Newf(kerror.EViolation,
+				"%s opener expects argument %d to be of %s type, %s given",
+				c.t, i+1, c.inTypes[i], v.Type())
 		}
 	}
-	out := o.function.Call(a)
-	obj := out[o.objectOutIndex]
+	out := c.function.Call(a)
+	obj := out[c.objectOutIndex]
 	dtor := kdone.DestructorFunc(obj.Interface().(io.Closer).Close)
 	var err error
-	if o.errorOutIndex >= 0 {
-		if v := out[o.errorOutIndex].Interface(); v != nil {
+	if c.errorOutIndex >= 0 {
+		if v := out[c.errorOutIndex].Interface(); v != nil {
 			err = v.(error)
 		}
 	}

@@ -9,6 +9,8 @@ import (
 )
 
 // Literal represents a bootstrapper that registers an object to use directly instead of it creation.
+//
+// Deprecated: since 0.4.0, use Injector instead.
 type Literal struct {
 	// t specifies the type of an object that is registered by this literal.
 	t reflect.Type
@@ -17,9 +19,11 @@ type Literal struct {
 }
 
 // NewLiteral returns a new literal.
+//
+// Deprecated: since 0.4.0, use NewInjector instead.
 func NewLiteral(x interface{}) (*Literal, error) {
 	if x == nil {
-		return nil, kerror.New(kerror.ERuntime, "value expected, nil given")
+		return nil, kerror.New(kerror.EViolation, "value expected, nil given")
 	}
 	return &Literal{
 		t:      reflect.TypeOf(x),
@@ -28,6 +32,8 @@ func NewLiteral(x interface{}) (*Literal, error) {
 }
 
 // MustNewLiteral is a variant of the NewLiteral that panics on error.
+//
+// Deprecated: since 0.4.0, use MustNewInjector instead.
 func MustNewLiteral(x interface{}) *Literal {
 	l, err := NewLiteral(x)
 	if err != nil {

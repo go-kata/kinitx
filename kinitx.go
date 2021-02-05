@@ -21,6 +21,15 @@ var destructorType = reflect.TypeOf((*kdone.Destructor)(nil)).Elem()
 // executorType specifies the reflection to the kinit.Executor interface.
 var executorType = reflect.TypeOf((*kinit.Executor)(nil)).Elem()
 
+// functorType specifies the reflection to the kinit.Functor interface.
+var functorType = reflect.TypeOf((*kinit.Functor)(nil)).Elem()
+
+// functorSliceType specifies the reflection to the slice of functors.
+var functorSliceType = reflect.SliceOf(functorType)
+
+// runtimeType specifies the reflection to the kinit.Runtime interface.
+var runtimeType = reflect.TypeOf((*kinit.Runtime)(nil))
+
 // Provide calls the kinit.Provide passing a constructor based on the given entity.
 //
 // The x argument will be parsed corresponding to following rules:
@@ -47,47 +56,49 @@ func MustProvide(x interface{}) {
 	}
 }
 
-// Apply calls kinit.Apply passing a processor based on the given entity.
+// Attach calls kinit.Attach passing a processor based on the given entity.
 //
 // See the documentation for the NewProcessor to find out possible values of the argument x.
-func Apply(x interface{}) error {
+func Attach(x interface{}) error {
 	proc, err := NewProcessor(x)
 	if err != nil {
 		return err
 	}
-	return kinit.Apply(proc)
+	return kinit.Attach(proc)
 }
 
-// MustApply is a variant of the Apply that panics on error.
-func MustApply(x interface{}) {
-	if err := Apply(x); err != nil {
+// MustAttach is a variant of the Attach that panics on error.
+func MustAttach(x interface{}) {
+	if err := Attach(x); err != nil {
 		panic(err)
 	}
 }
 
-// Invoke calls the kinit.Invoke passing an executor and initializers based on given entities.
+// Run calls the kinit.Run passing functors based on given entities.
 //
-// See the documentation for the NewExecutor and NewLiteral to find out possible values
-// of the arguments x and xx, respectively.
-func Invoke(x interface{}, xx ...interface{}) error {
-	exec, err := NewExecutor(x)
-	if err != nil {
-		return err
-	}
-	bootstrappers := make([]kinit.Bootstrapper, len(xx))
-	for i, v := range xx {
-		boot, err := NewLiteral(v)
+// Items of the xx argument (let's name each item as x) will be parsed corresponding to following rules:
+//
+// It is unacceptable x to be nil.
+//
+// If x is a function it will be parsed using the NewFunctor.
+//
+// Otherwise x will be parsed using the NewInjector.
+//
+func Run(xx ...interface{}) error {
+	functors := make([]kinit.Functor, len(xx))
+	for i, x := range xx {
+		fun, err := newProperFunctor(x)
 		if err != nil {
 			return err
 		}
-		bootstrappers[i] = boot
+		functors[i] = fun
 	}
-	return kinit.Invoke(exec, bootstrappers...)
+	return kinit.Run(functors...)
 }
 
-// MustInvoke is a variant of the Invoke that panics on error.
-func MustInvoke(x interface{}, xx ...interface{}) {
-	if err := Invoke(x, xx...); err != nil {
+// MustRun is a variant of the Run that panics on error.
+func MustRun(xx ...interface{}) {
+	if err := Run(xx...); err != nil {
 		panic(err)
 	}
 }

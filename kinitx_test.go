@@ -1,30 +1,34 @@
 package kinitx
 
-import "testing"
+import (
+	"testing"
 
-func TestProvideWithNilConstructor(t *testing.T) {
+	"github.com/go-kata/kerror"
+)
+
+func TestProvide__NilConstructor(t *testing.T) {
 	err := Provide(nil)
 	t.Logf("%+v", err)
-	if err == nil {
+	if kerror.ClassOf(err) != kerror.EViolation {
 		t.Fail()
 		return
 	}
 }
 
-func TestMustProvideWithNilConstructor(t *testing.T) {
-	defer func() {
-		v := recover()
-		t.Logf("%+v", v)
-		if v == nil {
-			t.Fail()
-			return
-		}
-	}()
-	MustProvide(nil)
+func TestMustProvide__NilConstructor(t *testing.T) {
+	err := kerror.Try(func() error {
+		MustProvide(nil)
+		return nil
+	})
+	t.Logf("%+v", err)
+	if kerror.ClassOf(err) != kerror.EViolation {
+		t.Fail()
+		return
+	}
 }
 
-func TestApplyWithNilConstructor(t *testing.T) {
-	err := Apply(nil)
+func TestAttach__NilProcessor(t *testing.T) {
+	err := Attach(nil)
 	t.Logf("%+v", err)
 	if err == nil {
 		t.Fail()
@@ -32,56 +36,35 @@ func TestApplyWithNilConstructor(t *testing.T) {
 	}
 }
 
-func TestMustApplyWithNilProcessor(t *testing.T) {
-	defer func() {
-		v := recover()
-		t.Logf("%+v", v)
-		if v == nil {
-			t.Fail()
-			return
-		}
-	}()
-	MustApply(nil)
-}
-
-func TestInvokeWithNilExecutor(t *testing.T) {
-	err := Invoke(nil)
+func TestMustAttach__NilProcessor(t *testing.T) {
+	err := kerror.Try(func() error {
+		MustAttach(nil)
+		return nil
+	})
 	t.Logf("%+v", err)
-	if err == nil {
+	if kerror.ClassOf(err) != kerror.EViolation {
 		t.Fail()
 		return
 	}
 }
 
-func TestMustInvokeWithNilExecutor(t *testing.T) {
-	defer func() {
-		v := recover()
-		t.Logf("%+v", v)
-		if v == nil {
-			t.Fail()
-			return
-		}
-	}()
-	MustInvoke(nil)
-}
-
-func TestInvokeWithNilBootstrapper(t *testing.T) {
-	err := Invoke(func() {}, nil)
+func TestRun__NilFunctor(t *testing.T) {
+	err := Run(nil)
 	t.Logf("%+v", err)
-	if err == nil {
+	if kerror.ClassOf(err) != kerror.EViolation {
 		t.Fail()
 		return
 	}
 }
 
-func TestMustInvokeWithNilBootstrapper(t *testing.T) {
-	defer func() {
-		v := recover()
-		t.Logf("%+v", v)
-		if v == nil {
-			t.Fail()
-			return
-		}
-	}()
-	MustInvoke(func() {}, nil)
+func TestMustRun__NilFunctor(t *testing.T) {
+	err := kerror.Try(func() error {
+		MustRun(nil)
+		return nil
+	})
+	t.Logf("%+v", err)
+	if kerror.ClassOf(err) != kerror.EViolation {
+		t.Fail()
+		return
+	}
 }

@@ -22,19 +22,19 @@ type Initializer struct {
 // The argument x must be a struct or a struct pointer.
 func NewInitializer(x interface{}) (*Initializer, error) {
 	if x == nil {
-		return nil, kerror.New(kerror.ERuntime, "struct or struct pointer expected, nil given")
+		return nil, kerror.New(kerror.EViolation, "struct or struct pointer expected, nil given")
 	}
 	t := reflect.TypeOf(x)
 	var st reflect.Type
 	switch t.Kind() {
 	default:
-		return nil, kerror.Newf(kerror.ERuntime, "struct or struct pointer expected, %s given", t)
+		return nil, kerror.Newf(kerror.EViolation, "struct or struct pointer expected, %s given", t)
 	case reflect.Struct:
 		st = t
 	case reflect.Ptr:
 		st = t.Elem()
 		if st.Kind() != reflect.Struct {
-			return nil, kerror.Newf(kerror.ERuntime, "struct or struct pointer expected, %s given", t)
+			return nil, kerror.Newf(kerror.EViolation, "struct or struct pointer expected, %s given", t)
 		}
 	}
 	c := &Initializer{
@@ -84,13 +84,13 @@ func (c *Initializer) Create(a ...reflect.Value) (reflect.Value, kdone.Destructo
 		return reflect.Value{}, kdone.Noop, nil
 	}
 	if len(a) != len(c.assignableFieldTypes) {
-		return reflect.Value{}, kdone.Noop, kerror.Newf(kerror.ERuntime,
+		return reflect.Value{}, kdone.Noop, kerror.Newf(kerror.EViolation,
 			"%s initializer expects %d argument(s), %d given",
 			c.t, len(c.assignableFieldTypes), len(a))
 	}
 	for i, v := range a {
 		if v.Type() != c.assignableFieldTypes[i] {
-			return reflect.Value{}, kdone.Noop, kerror.Newf(kerror.ERuntime,
+			return reflect.Value{}, kdone.Noop, kerror.Newf(kerror.EViolation,
 				"%s initializer expects argument %d to be of %s type, %s given",
 				c.t, i+1, c.assignableFieldTypes[i], v.Type())
 		}

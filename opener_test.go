@@ -23,7 +23,7 @@ func (t3 *testOpenerT3) Close() error {
 	return nil
 }
 
-func TestOpener1(t *testing.T) {
+func TestOpener__FunctionReturningObject(t *testing.T) {
 	var c int
 	defer func() {
 		if c != -1 {
@@ -56,7 +56,7 @@ func TestOpener1(t *testing.T) {
 	}
 }
 
-func TestOpener2(t *testing.T) {
+func TestOpener__FunctionReturningObjectAndError(t *testing.T) {
 	var c int
 	defer func() {
 		if c != -1 {
@@ -89,50 +89,43 @@ func TestOpener2(t *testing.T) {
 	}
 }
 
-func TestOpener_NewWithNil(t *testing.T) {
+func TestNewOpener__Nil(t *testing.T) {
 	_, err := NewOpener(nil)
 	t.Logf("%+v", err)
-	if kerror.ClassOf(err) != kerror.ERuntime {
+	if kerror.ClassOf(err) != kerror.EViolation {
 		t.Fail()
 		return
 	}
 }
 
-func TestOpener_NewWithNilFunction(t *testing.T) {
+func TestNewOpener__NilFunction(t *testing.T) {
 	_, err := NewOpener((func() *testOpenerT3)(nil))
 	t.Logf("%+v", err)
-	if kerror.ClassOf(err) != kerror.ERuntime {
+	if kerror.ClassOf(err) != kerror.EViolation {
 		t.Fail()
 		return
 	}
 }
 
-func TestOpener_NewWithWrongType(t *testing.T) {
+func TestNewOpener__WrongType(t *testing.T) {
 	_, err := NewOpener(0)
 	t.Logf("%+v", err)
-	if kerror.ClassOf(err) != kerror.ERuntime {
+	if kerror.ClassOf(err) != kerror.EViolation {
 		t.Fail()
 		return
 	}
 }
 
-func TestOpener_NewWithWrongSignature(t *testing.T) {
-	defer func() {
-		if v := recover(); v != nil {
-			t.Logf("%+v", v)
-			t.Fail()
-			return
-		}
-	}()
+func TestNewOpener__WrongSignature(t *testing.T) {
 	_, err := NewOpener(func() {})
 	t.Logf("%+v", err)
-	if kerror.ClassOf(err) != kerror.ERuntime {
+	if kerror.ClassOf(err) != kerror.EViolation {
 		t.Fail()
 		return
 	}
 }
 
-func TestOpener_NewWithWrongCloser(t *testing.T) {
+func TestNewOpener__WrongCloser(t *testing.T) {
 	defer func() {
 		if v := recover(); v != nil {
 			t.Logf("%+v", v)
@@ -142,13 +135,13 @@ func TestOpener_NewWithWrongCloser(t *testing.T) {
 	}()
 	_, err := NewOpener(func() struct{} { return struct{}{} })
 	t.Logf("%+v", err)
-	if kerror.ClassOf(err) != kerror.ERuntime {
+	if kerror.ClassOf(err) != kerror.EViolation {
 		t.Fail()
 		return
 	}
 }
 
-func TestOpener_CreateWithWrongNumberOfArguments(t *testing.T) {
+func TestOpener_Create__WrongNumberOfArguments(t *testing.T) {
 	ctor := MustNewOpener(func(
 		obj1 *testOpenerT1,
 		obj2 *testOpenerT2,
@@ -158,13 +151,13 @@ func TestOpener_CreateWithWrongNumberOfArguments(t *testing.T) {
 	t.Logf("%+v %+v", ctor.Type(), ctor.Parameters())
 	_, _, err := ctor.Create(reflect.ValueOf(&testOpenerT1{}))
 	t.Logf("%+v", err)
-	if kerror.ClassOf(err) != kerror.ERuntime {
+	if kerror.ClassOf(err) != kerror.EViolation {
 		t.Fail()
 		return
 	}
 }
 
-func TestOpener_CreateWithWrongArgumentType(t *testing.T) {
+func TestOpener_Create__WrongArgumentType(t *testing.T) {
 	ctor := MustNewOpener(func(
 		obj1 *testOpenerT1,
 		obj2 *testOpenerT2,
@@ -174,7 +167,7 @@ func TestOpener_CreateWithWrongArgumentType(t *testing.T) {
 	t.Logf("%+v %+v", ctor.Type(), ctor.Parameters())
 	_, _, err := ctor.Create(reflect.ValueOf(&testOpenerT1{}), reflect.ValueOf(0))
 	t.Logf("%+v", err)
-	if kerror.ClassOf(err) != kerror.ERuntime {
+	if kerror.ClassOf(err) != kerror.EViolation {
 		t.Fail()
 		return
 	}

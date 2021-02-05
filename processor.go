@@ -30,15 +30,15 @@ type Processor struct {
 //
 func NewProcessor(x interface{}) (*Processor, error) {
 	if x == nil {
-		return nil, kerror.New(kerror.ERuntime, "function expected, nil given")
+		return nil, kerror.New(kerror.EViolation, "function expected, nil given")
 	}
 	ft := reflect.TypeOf(x)
 	fv := reflect.ValueOf(x)
 	if ft.Kind() != reflect.Func {
-		return nil, kerror.Newf(kerror.ERuntime, "function expected, %s given", ft)
+		return nil, kerror.Newf(kerror.EViolation, "function expected, %s given", ft)
 	}
 	if fv.IsNil() {
-		return nil, kerror.New(kerror.ERuntime, "function expected, nil given")
+		return nil, kerror.New(kerror.EViolation, "function expected, nil given")
 	}
 	p := &Processor{
 		function: fv,
@@ -48,7 +48,7 @@ func NewProcessor(x interface{}) (*Processor, error) {
 		numIn--
 	}
 	if numIn < 1 {
-		return nil, kerror.Newf(kerror.ERuntime, "function %s is not a processor", ft)
+		return nil, kerror.Newf(kerror.EViolation, "function %s is not a processor", ft)
 	}
 	p.t = ft.In(0)
 	p.inTypes = make([]reflect.Type, numIn-1)
@@ -57,12 +57,12 @@ func NewProcessor(x interface{}) (*Processor, error) {
 	}
 	switch ft.NumOut() {
 	default:
-		return nil, kerror.Newf(kerror.ERuntime, "function %s is not a processor", ft)
+		return nil, kerror.Newf(kerror.EViolation, "function %s is not a processor", ft)
 	case 0:
 		p.errorOutIndex = -1
 	case 1:
 		if ft.Out(0) != errorType {
-			return nil, kerror.Newf(kerror.ERuntime, "function %s is not a processor", ft)
+			return nil, kerror.Newf(kerror.EViolation, "function %s is not a processor", ft)
 		}
 		p.errorOutIndex = 0
 	}
@@ -71,11 +71,11 @@ func NewProcessor(x interface{}) (*Processor, error) {
 
 // MustNewProcessor is a variant of the NewProcessor that panics on error.
 func MustNewProcessor(x interface{}) *Processor {
-	m, err := NewProcessor(x)
+	p, err := NewProcessor(x)
 	if err != nil {
 		panic(err)
 	}
-	return m
+	return p
 }
 
 // Type implements the kinit.Processor interface.
@@ -102,18 +102,18 @@ func (p *Processor) Process(obj reflect.Value, a ...reflect.Value) error {
 		return nil
 	}
 	if obj.Type() != p.t {
-		return kerror.Newf(kerror.ERuntime,
+		return kerror.Newf(kerror.EViolation,
 			"%s processor doesn't accept objects of %s type", p.t, obj.Type())
 	}
 	if len(a) != len(p.inTypes) {
-		return kerror.Newf(kerror.ERuntime,
+		return kerror.Newf(kerror.EViolation,
 			"%s processor expects %d argument(s), %d given", p.t, len(p.inTypes), len(a))
 	}
 	in := make([]reflect.Value, len(p.inTypes)+1)
 	in[0] = obj
 	for i, v := range a {
 		if v.Type() != p.inTypes[i] {
-			return kerror.Newf(kerror.ERuntime,
+			return kerror.Newf(kerror.EViolation,
 				"%s processor expects argument %d to be of %s type, %s given",
 				p.t, i+1, p.inTypes[i], v.Type())
 		}

@@ -17,7 +17,7 @@ type testConstructorT3 struct {
 	obj2 *testConstructorT2
 }
 
-func TestConstructor1(t *testing.T) {
+func TestConstructor__FunctionReturningObject(t *testing.T) {
 	ctor := MustNewConstructor(func(
 		obj1 *testConstructorT1,
 		obj2 *testConstructorT2,
@@ -46,7 +46,7 @@ func TestConstructor1(t *testing.T) {
 	}
 }
 
-func TestConstructor2(t *testing.T) {
+func TestConstructor__FunctionReturningObjectAndError(t *testing.T) {
 	ctor := MustNewConstructor(func(
 		obj1 *testConstructorT1,
 		obj2 *testConstructorT2,
@@ -78,7 +78,7 @@ func TestConstructor2(t *testing.T) {
 	}
 }
 
-func TestConstructor3(t *testing.T) {
+func TestConstructor__FunctionReturningDestructibleObjectAndError(t *testing.T) {
 	ctor := MustNewConstructor(func(
 		obj1 *testConstructorT1,
 		obj2 *testConstructorT2,
@@ -111,50 +111,43 @@ func TestConstructor3(t *testing.T) {
 	}
 }
 
-func TestConstructor_NewWithNil(t *testing.T) {
+func TestNewConstructor__Nil(t *testing.T) {
 	_, err := NewConstructor(nil)
 	t.Logf("%+v", err)
-	if kerror.ClassOf(err) != kerror.ERuntime {
+	if kerror.ClassOf(err) != kerror.EViolation {
 		t.Fail()
 		return
 	}
 }
 
-func TestConstructor_NewWithNilFunction(t *testing.T) {
+func TestNewConstructor__NilFunction(t *testing.T) {
 	_, err := NewConstructor((func() int)(nil))
 	t.Logf("%+v", err)
-	if kerror.ClassOf(err) != kerror.ERuntime {
+	if kerror.ClassOf(err) != kerror.EViolation {
 		t.Fail()
 		return
 	}
 }
 
-func TestConstructor_NewWithWrongType(t *testing.T) {
+func TestNewConstructor__WrongType(t *testing.T) {
 	_, err := NewConstructor(0)
 	t.Logf("%+v", err)
-	if kerror.ClassOf(err) != kerror.ERuntime {
+	if kerror.ClassOf(err) != kerror.EViolation {
 		t.Fail()
 		return
 	}
 }
 
-func TestConstructor_NewWithWrongSignature(t *testing.T) {
-	defer func() {
-		if v := recover(); v != nil {
-			t.Logf("%+v", v)
-			t.Fail()
-			return
-		}
-	}()
+func TestNewConstructor__WrongSignature(t *testing.T) {
 	_, err := NewConstructor(func() {})
 	t.Logf("%+v", err)
-	if kerror.ClassOf(err) != kerror.ERuntime {
+	if kerror.ClassOf(err) != kerror.EViolation {
 		t.Fail()
 		return
 	}
 }
 
-func TestConstructor_CreateWithWrongNumberOfArguments(t *testing.T) {
+func TestConstructor_Create__WrongNumberOfArguments(t *testing.T) {
 	ctor := MustNewConstructor(func(
 		obj1 *testConstructorT1,
 		obj2 *testConstructorT2,
@@ -164,13 +157,13 @@ func TestConstructor_CreateWithWrongNumberOfArguments(t *testing.T) {
 	t.Logf("%+v %+v", ctor.Type(), ctor.Parameters())
 	_, _, err := ctor.Create(reflect.ValueOf(&testConstructorT1{}))
 	t.Logf("%+v", err)
-	if kerror.ClassOf(err) != kerror.ERuntime {
+	if kerror.ClassOf(err) != kerror.EViolation {
 		t.Fail()
 		return
 	}
 }
 
-func TestConstructor_CreateWithWrongArgumentType(t *testing.T) {
+func TestConstructor_Create__WrongArgumentType(t *testing.T) {
 	ctor := MustNewConstructor(func(
 		obj1 *testConstructorT1,
 		obj2 *testConstructorT2,
@@ -180,7 +173,7 @@ func TestConstructor_CreateWithWrongArgumentType(t *testing.T) {
 	t.Logf("%+v %+v", ctor.Type(), ctor.Parameters())
 	_, _, err := ctor.Create(reflect.ValueOf(&testConstructorT1{}), reflect.ValueOf(0))
 	t.Logf("%+v", err)
-	if kerror.ClassOf(err) != kerror.ERuntime {
+	if kerror.ClassOf(err) != kerror.EViolation {
 		t.Fail()
 		return
 	}

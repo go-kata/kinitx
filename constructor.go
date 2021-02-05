@@ -38,15 +38,15 @@ type Constructor struct {
 //
 func NewConstructor(x interface{}) (*Constructor, error) {
 	if x == nil {
-		return nil, kerror.New(kerror.ERuntime, "function expected, nil given")
+		return nil, kerror.New(kerror.EViolation, "function expected, nil given")
 	}
 	ft := reflect.TypeOf(x)
 	fv := reflect.ValueOf(x)
 	if ft.Kind() != reflect.Func {
-		return nil, kerror.Newf(kerror.ERuntime, "function expected, %s given", ft)
+		return nil, kerror.Newf(kerror.EViolation, "function expected, %s given", ft)
 	}
 	if fv.IsNil() {
-		return nil, kerror.New(kerror.ERuntime, "function expected, nil given")
+		return nil, kerror.New(kerror.EViolation, "function expected, nil given")
 	}
 	c := &Constructor{
 		function: fv,
@@ -61,7 +61,7 @@ func NewConstructor(x interface{}) (*Constructor, error) {
 	}
 	switch ft.NumOut() {
 	default:
-		return nil, kerror.Newf(kerror.ERuntime, "function %s is not a constructor", ft)
+		return nil, kerror.Newf(kerror.EViolation, "function %s is not a constructor", ft)
 	case 1:
 		c.t = ft.Out(0)
 		c.objectOutIndex = 0
@@ -69,7 +69,7 @@ func NewConstructor(x interface{}) (*Constructor, error) {
 		c.errorOutIndex = -1
 	case 2:
 		if ft.Out(1) != errorType {
-			return nil, kerror.Newf(kerror.ERuntime, "function %s is not a constructor", ft)
+			return nil, kerror.Newf(kerror.EViolation, "function %s is not a constructor", ft)
 		}
 		c.t = ft.Out(0)
 		c.objectOutIndex = 0
@@ -77,7 +77,7 @@ func NewConstructor(x interface{}) (*Constructor, error) {
 		c.errorOutIndex = 1
 	case 3:
 		if ft.Out(1) != destructorType || ft.Out(2) != errorType {
-			return nil, kerror.Newf(kerror.ERuntime, "function %s is not a constructor", ft)
+			return nil, kerror.Newf(kerror.EViolation, "function %s is not a constructor", ft)
 		}
 		c.t = ft.Out(0)
 		c.objectOutIndex = 0
@@ -120,13 +120,13 @@ func (c *Constructor) Create(a ...reflect.Value) (reflect.Value, kdone.Destructo
 		return reflect.Value{}, kdone.Noop, nil
 	}
 	if len(a) != len(c.inTypes) {
-		return reflect.Value{}, kdone.Noop, kerror.Newf(kerror.ERuntime,
+		return reflect.Value{}, kdone.Noop, kerror.Newf(kerror.EViolation,
 			"%s constructor expects %d argument(s), %d given",
 			c.t, len(c.inTypes), len(a))
 	}
 	for i, v := range a {
 		if v.Type() != c.inTypes[i] {
-			return reflect.Value{}, kdone.Noop, kerror.Newf(kerror.ERuntime,
+			return reflect.Value{}, kdone.Noop, kerror.Newf(kerror.EViolation,
 				"%s constructor expects argument %d to be of %s type, %s given",
 				c.t, i+1, c.inTypes[i], v.Type())
 		}

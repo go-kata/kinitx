@@ -24,10 +24,10 @@ func TestLiteral(t *testing.T) {
 	}
 }
 
-func TestLiteral_NewWithNil(t *testing.T) {
+func TestNewLiteral__Nil(t *testing.T) {
 	_, err := NewLiteral(nil)
 	t.Logf("%+v", err)
-	if kerror.ClassOf(err) != kerror.ERuntime {
+	if kerror.ClassOf(err) != kerror.EViolation {
 		t.Fail()
 		return
 	}
