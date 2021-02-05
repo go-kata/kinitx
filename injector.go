@@ -38,7 +38,7 @@ func MustNewInjector(x interface{}) *Injector {
 	return f
 }
 
-// Parameters implements the kinit.Injector interface.
+// Parameters implements the kinit.Functor interface.
 func (f *Injector) Parameters() []reflect.Type {
 	if f == nil {
 		return nil
@@ -46,7 +46,7 @@ func (f *Injector) Parameters() []reflect.Type {
 	return []reflect.Type{runtimeType}
 }
 
-// Call implements the kinit.Injector interface.
+// Call implements the kinit.Functor interface.
 func (f *Injector) Call(a ...reflect.Value) ([]kinit.Functor, error) {
 	if f == nil {
 		return nil, nil
